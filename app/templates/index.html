@@ -1,0 +1,58 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<html>
+
+<head>
+  <title>Example for the d3.js export from mapper</title>
+
+  <style>
+    .link {
+      stroke: #999;
+      stroke-opacity: .6;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Please give me your file! Only csv txt are supported!</h2>
+  <form action="/" method=post enctype=multipart/form-data>
+    <input type=file name=file>
+    <input type=submit value=Upload>
+  </form>
+
+  {% if submitflag %}
+  <form action="/" method=post enctype=multipart/form-data>
+    {% for eachcol in columns %}
+        <input type='radio' name= 'option' value= {{eachcol}}>{{eachcol}}
+    {% endfor %}
+        <input type="submit" value="Submit!" />
+  </form>
+  {% endif%}
+
+  {% if featureflag %}
+  <p>Your selected feature is: {{selected_f}}</p>
+  <p>
+    The min value of the feature is: {{minvalue}}<br>
+    The max value of the feature is: {{maxvalue}}
+  </p>
+
+  <form action="/" method=post enctype=multipart/form-data>
+  <input type='text' name='range'/>
+  <input type='submit' value='start!'/>
+  </form>
+
+  <p>
+    The index of points ly in the feature's range are:
+    {{rangeindex}}
+  </p>
+  {% endif %}
+
+
+  <div id="graph"></div>
+
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <script src="{{ url_for('static', filename = 'js/force_layout.js') }}"></script>
+
+</body>
+
+</html>
