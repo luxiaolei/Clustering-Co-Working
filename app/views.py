@@ -7,7 +7,8 @@ import os
 import json
 import os.path as op
 import pandas as pd
-import cPickle as pkl
+import json
+import numpy as np
 
 app.secret_key = 'F12Zr47j\3yX R~X@H!jmM]Lwf/,?KT'
 ALLOWED_EXTENSIONS = set(['txt', 'csv'])
@@ -45,7 +46,6 @@ def recolor_mapperoutput(mapperjson):
 
     selfvars.mappernew =  target
 
-
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
 
@@ -62,11 +62,11 @@ def upload_file():
 
 
                 #pop index col
-                FirstRowisIndex= True
+                FirstRowisIndex= False
                 if FirstRowisIndex:
                     df = pd.read_csv('uploads/'+filename, index_col=0)
                 else:
-                    pass
+                    df = pd.read_csv('uploads/'+filename)
 
 
                 col = df.columns.values
@@ -90,6 +90,11 @@ def upload_file():
                 minvalue = data.min()
                 maxvalue = data.max()
 
+                with open('mapperoutput.json', 'rb') as f:
+                    mapperoutput = json.load(f)
+
+                recolor_mapperoutput(mapperoutput)
+
                 return render_template('index.html', columns= selfvars.features,\
                         submitflag=True, featureflag= True, selected_f= selfvars.selected_feature,\
                         minvalue= minvalue,\
@@ -104,11 +109,12 @@ def upload_file():
                     df = selfvars.df
                     sf = selfvars.selected_feature
                     rangeindex = df.ix[(df[sf] >= inputrange[0]) & (df[sf] <= inputrange[-1])].index.values
-
-                    with open('mapperoutput.pkl', 'rb') as f:
-                        mapperoutput = pkl.load(f)
+                    """
+                    with open('mapperoutput.json', 'rb') as f:
+                        mapperoutput = json.load(f)
 
                     recolor_mapperoutput(mapperoutput)
+                    """
 
 
                     return render_template('index.html', columns= selfvars.features,\
@@ -121,15 +127,14 @@ def upload_file():
                     pass
     else: return render_template('index.html')
 
-
 @app.route('/mapperjson')
 def mapper_cluster():
 
     if selfvars.mappernew == 1:
         #first time initiate the graph
 
-        with open('mapperoutput.pkl', 'rb') as f:
-            G = pkl.load(f)
+        with open('mapperoutput.json', 'rb') as f:
+            G = json.load(f)
     else:
         G = selfvars.mappernew
     return json.dumps(G)
